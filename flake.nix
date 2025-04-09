@@ -108,6 +108,7 @@
           packages = [
             python
             pkgs.uv
+            pkgs.ruff
           ];
           env =
             {
@@ -123,6 +124,7 @@
             };
           shellHook = ''
             unset PYTHONPATH
+            export SHELL=${pkgs.lib.getExe pkgs.bashInteractive}
           '';
         };
 
