@@ -1,5 +1,5 @@
 {
-  description = "tito flake using uv2nix";
+  description = "Hello world flake using uv2nix";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -25,6 +25,7 @@
 
   outputs =
     {
+      self,
       nixpkgs,
       uv2nix,
       pyproject-nix,
@@ -89,6 +90,14 @@
       # Enable no optional dependencies for production build.
       packages.x86_64-linux.default = pythonSet.mkVirtualEnv "tito-env" workspace.deps.default;
 
+      # Make hello runnable with `nix run`
+      apps.x86_64-linux = {
+        default = {
+          type = "app";
+          program = "${self.packages.x86_64-linux.default}/bin/tito";
+        };
+      };
+
       # This example provides two different modes of development:
       # - Impurely using uv to manage virtual environments
       # - Pure development using uv2nix to manage virtual environments
@@ -121,10 +130,11 @@
         # The notable difference is that we also apply another overlay here enabling editable mode ( https://setuptools.pypa.io/en/latest/userguide/development_mode.html ).
         #
         # This means that any changes done to your local files do not require a rebuild.
+        #
+        # Note: Editable package support is still unstable and subject to change.
         uv2nix =
           let
             # Create an overlay enabling editable mode for all local dependencies.
-            # Note: Editable support is still under development and this API might change.
             editableOverlay = workspace.mkEditablePyprojectOverlay {
               # Use environment variable
               root = "$REPO_ROOT";
@@ -133,7 +143,40 @@
             };
 
             # Override previous set with our overrideable overlay.
-            editablePythonSet = pythonSet.overrideScope editableOverlay;
+            editablePythonSet = pythonSet.overrideScope (
+              lib.composeManyExtensions [
+                editableOverlay
+
+                # Apply fixups for building an editable package of your workspace packages
+                (final: prev: {
+                  hello-world = prev.hello-world.overrideAttrs (old: {
+                    # It's a good idea to filter the sources going into an editable build
+                    # so the editable package doesn't have to be rebuilt on every change.
+                    src = lib.fileset.toSource {
+                      root = old.src;
+                      fileset = lib.fileset.unions [
+                        (old.src + "/pyproject.toml")
+                        (old.src + "/README.md")
+                        (old.src + "/src/init/__init__.py")
+                      ];
+                    };
+
+                    # Hatchling (our build system) has a dependency on the `editables` package when building editables.
+                    #
+                    # In normal Python flows this dependency is dynamically handled, and doesn't need to be explicitly declared.
+                    # This behaviour is documented in PEP-660.
+                    #
+                    # With Nix the dependency needs to be explicitly declared.
+                    nativeBuildInputs =
+                      old.nativeBuildInputs
+                      ++ final.resolveBuildSystem {
+                        editables = [ ];
+                      };
+                  });
+
+                })
+              ]
+            );
 
             # Build virtual environment, with local packages being editable.
             #
@@ -164,10 +207,8 @@
 
               # Get repository root using git. This is expanded at runtime by the editable `.pth` machinery.
               export REPO_ROOT=$(git rev-parse --show-toplevel)
-              export SHELL=${pkgs.lib.getExe pkgs.bashInteractive}              
             '';
           };
       };
     };
 }
-
