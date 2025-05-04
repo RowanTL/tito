@@ -170,7 +170,6 @@
                       old.nativeBuildInputs
                       ++ final.resolveBuildSystem {
                         editables = [ ];
-                        setuptools = [ ];
                       };
                   });
 
@@ -188,6 +187,7 @@
             packages = [
               virtualenv
               pkgs.uv
+              python.pkgs.setuptools
             ];
 
             env = {
