@@ -26,6 +26,8 @@
             bacon
             python313Packages.pygments # for personal gdb-dashboard use
             cargo-expand
+            pkg-config
+            openssl
           ];
           shellHook = ''
             export SHELL=${pkgs.lib.getExe pkgs.bashInteractive}
