@@ -1,7 +1,10 @@
-[build-system]
-requires = ["hatchling >= 1.26"]
-build-backend = "hatchling.build"
-
 [project]
 name = "tito"
 version = "0.0.1"
+description = "A stock trading bot"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alpaca-py>=0.4.0",
+    "polars>=1.29.0"
+]
