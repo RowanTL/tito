@@ -67,7 +67,7 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
       # Use Python 3.12 from nixpkgs
-      python = pkgs.python312;
+      python = pkgs.python313;
 
       # Construct package set
       pythonSet =
@@ -157,7 +157,6 @@
                       fileset = lib.fileset.unions [
                         (old.src + "/pyproject.toml")
                         (old.src + "/README.md")
-                        (old.src + "/src/hello_world/__init__.py")
                       ];
                     };
 
@@ -171,7 +170,8 @@
                       old.nativeBuildInputs
                       ++ final.resolveBuildSystem {
                         editables = [ ];
-                      };
+                      }
+                      ++ [ python.pkgs.setuptools ];
                   });
 
                 })
