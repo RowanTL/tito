@@ -2735,7 +2735,6 @@ dependencies = [
 dev = [
     { name = "black" },
     { name = "ruff" },
-    { name = "setuptools" },
     { name = "spyder" },
 ]
 
@@ -2750,7 +2749,6 @@ requires-dist = [
 dev = [
     { name = "black", specifier = ">=25.1.0" },
     { name = "ruff", specifier = ">=0.11.8" },
-    { name = "setuptools" },
     { name = "spyder", specifier = ">=6.0.5" },
 ]
 

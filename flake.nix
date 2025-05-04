@@ -170,8 +170,8 @@
                       old.nativeBuildInputs
                       ++ final.resolveBuildSystem {
                         editables = [ ];
-                      }
-                      ++ [ python.pkgs.setuptools ];
+                        setuptools = [ ];
+                      };
                   });
 
                 })
