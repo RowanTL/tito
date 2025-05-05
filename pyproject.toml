@@ -8,7 +8,7 @@ dependencies = [
     "alpaca-py>=0.4.0",
     "polars>=1.29.0",
     "matplotlib>=3.10.1",
-    "yfinance>=0.2.58"
+    "yfinance>=0.2.58",
     "spyder"
 ]
 
