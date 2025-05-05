@@ -138,6 +138,8 @@
               UV_PYTHON_DOWNLOADS = "never";
               # Force uv to use nixpkgs Python interpreter
               UV_PYTHON = python.interpreter;
+              # Use bashinteractive
+              SHELL = pkgs.lib.getExe pkgs.bashInteractive;
             }
             // lib.optionalAttrs pkgs.stdenv.isLinux {
               # Python libraries often load native shared objects using dlopen(3).
@@ -146,7 +148,6 @@
             };
           shellHook = ''
             unset PYTHONPATH
-            export SHELL=${pkgs.lib.getExe pkgs.bashInteractive}
           '';
         };
 
