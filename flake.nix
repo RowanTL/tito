@@ -21,6 +21,14 @@
       inputs.uv2nix.follows = "uv2nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixpkgs2411 = {
+      url = "github:NixOS/nixpkgs/nixos-24.11";
+      inputs.pyproject-build-systems.follows = "pyproject-build-systems";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -30,6 +38,7 @@
       uv2nix,
       pyproject-nix,
       pyproject-build-systems,
+      nixpkgs2411,
       ...
     }:
     let
@@ -73,7 +82,7 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
       # Use Python 3.12 from nixpkgs
-      python = pkgs.python313;
+      python = pkgs.python312;
 
       # Construct package set
       pythonSet =
@@ -114,9 +123,9 @@
           packages = [
             (python.withPackages (pypkgs: with pypkgs; [
               spyder
-              ipython
               spyder-kernels
             ]))
+            nixpkgs2411.legacyPackages.x86_64-linux.pkgs.python312Packages.ipython
             pkgs.uv
           ];
           env =
