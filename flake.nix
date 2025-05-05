@@ -30,7 +30,6 @@
       uv2nix,
       pyproject-nix,
       pyproject-build-systems,
-      nixpkgs2411,
       ...
     }:
     let
