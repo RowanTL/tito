@@ -2,7 +2,7 @@
   description = "Hello world flake using uv2nix";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
 
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
