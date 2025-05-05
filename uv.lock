@@ -2750,12 +2750,8 @@ dependencies = [
     { name = "alpaca-py" },
     { name = "matplotlib" },
     { name = "polars" },
-    { name = "yfinance" },
-]
-
-[package.optional-dependencies]
-dev = [
     { name = "spyder" },
+    { name = "yfinance" },
 ]
 
 [package.metadata]
@@ -2763,7 +2759,7 @@ requires-dist = [
     { name = "alpaca-py", specifier = ">=0.4.0" },
     { name = "matplotlib", specifier = ">=3.10.1" },
     { name = "polars", specifier = ">=1.29.0" },
-    { name = "spyder", marker = "extra == 'dev'" },
+    { name = "spyder" },
     { name = "yfinance", specifier = ">=0.2.58" },
 ]
 

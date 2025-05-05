@@ -120,6 +120,7 @@
           packages = [
             python
             pkgs.uv
+            pkgs.libsForQt5.qt5.qtbase
             # (pkgs.vscode-with-extensions.override {
             #   vscodeExtensions = with pkgs.vscode-extensions; [
             #     bbenoist.nix
