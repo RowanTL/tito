@@ -112,9 +112,12 @@
         # This devShell simply adds Python and undoes the dependency leakage done by Nixpkgs Python infrastructure.
         impure = pkgs.mkShell {
           packages = [
-            python
+            (python.withPackages (pypkgs: with pypkgs; [
+              spyder
+              ipython
+              spyder-kernels
+            ]))
             pkgs.uv
-            pkgs.spyder
           ];
           env =
             {
@@ -194,7 +197,6 @@
             packages = [
               virtualenv
               pkgs.uv
-              pkgs.spyder
             ];
 
             env = {
