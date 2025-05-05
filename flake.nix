@@ -24,10 +24,10 @@
 
     nixpkgs2411 = {
       url = "github:NixOS/nixpkgs/nixos-24.11";
-      inputs.pyproject-build-systems.follows = "pyproject-build-systems";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.uv2nix.follows = "uv2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # inputs.pyproject-build-systems.follows = "pyproject-build-systems";
+      # inputs.pyproject-nix.follows = "pyproject-nix";
+      # inputs.uv2nix.follows = "uv2nix";
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
@@ -121,11 +121,11 @@
         # This devShell simply adds Python and undoes the dependency leakage done by Nixpkgs Python infrastructure.
         impure = pkgs.mkShell {
           packages = [
+            nixpkgs2411.legacyPackages.x86_64-linux.pkgs.python312Packages.ipython
             (python.withPackages (pypkgs: with pypkgs; [
               spyder
               spyder-kernels
             ]))
-            nixpkgs2411.legacyPackages.x86_64-linux.pkgs.python312Packages.ipython
             pkgs.uv
           ];
           env =
