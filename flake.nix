@@ -3,10 +3,27 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.11";
+    unixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = { nixpkgs, ... }:
-  let system = "x86_64-linux"; pkgs = import nixpkgs { system = "${system}"; config.allowUnfree = true; }; in
+  outputs = { nixpkgs, unixpkgs, ... }:
+  let
+    system = "x86_64-linux";
+
+    # overlay = final: prev: {
+    #   python312 = prev.python312.override {
+    #     packageOverrides = pyFinal: pyPrev: {
+    #       fastexcel = unixpkgs.legacyPackages.${system}.python312Packages.fastexcel;
+    #     };
+    #   };
+    # };
+
+    pkgs = import unixpkgs {
+      system = "${system}";
+      config.allowUnfree = true;
+      # overlays = [ overlay ];
+    };
+  in
   {
     devShells."${system}".default =
       pkgs.mkShellNoCC {
@@ -30,6 +47,7 @@
             seaborn
             spyder
             fastexcel
+            yfinance
           ]))
           octaveFull
           zeromq
@@ -50,6 +68,9 @@
         ];
         shellHook = ''
           export SHELL=${pkgs.lib.getExe pkgs.bashInteractive}
+          export LD_LIBRARY_PATH=${pkgs.lib.makeLibraryPath [
+            pkgs.stdenv.cc.cc.lib
+          ]}:$LD_LIBRARY_PATH
         '';
       };
   };
