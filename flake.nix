@@ -129,6 +129,8 @@
                 ms-python.vscode-pylance
                 ms-python.debugpy
                 mechatroner.rainbow-csv
+                donjayamanne.githistory
+                thenuprojectcontributors.vscode-nushell-lang
               ]; 
             })
           ];
