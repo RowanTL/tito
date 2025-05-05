@@ -8,11 +8,13 @@ dependencies = [
     "alpaca-py>=0.4.0",
     "polars>=1.29.0",
     "matplotlib>=3.10.1",
+    "yfinance>=0.2.58"
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.11.8",
     "black>=25.1.0",
+    # "ipython==8.36.0"
     # "spyder>=6.0.5",
 ]
