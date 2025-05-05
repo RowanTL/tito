@@ -70,7 +70,13 @@
       };
 
       # This example is only using x86_64-linux
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      # pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+        config = {
+          allowUnfree = true;
+        };
+      };
 
       # Use Python 3.12 from nixpkgs
       python = pkgs.python312;
@@ -112,11 +118,14 @@
         # This devShell simply adds Python and undoes the dependency leakage done by Nixpkgs Python infrastructure.
         impure = pkgs.mkShell {
           packages = [
-            (python.withPackages (pypkgs: with pypkgs; [
-              spyder
-            ]))
-            # python
+            python
             pkgs.uv
+            (pkgs.vscode-with-extensions.override {
+              vscodeExtensions = with pkgs.vscode-extensions; [
+                bbenoist.nix
+                ms-python.python
+              ]; 
+            })
           ];
           env =
             {

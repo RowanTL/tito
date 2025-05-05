@@ -3,6 +3,7 @@
 
 import yfinance as yf
 import polars as pl
+import pandas as pd
 from datetime import datetime, timedelta
 
 # Define the ticker
@@ -17,7 +18,7 @@ data = yf.download(
     ticker,
     start=start.strftime('%Y-%m-%d'),
     end=end.strftime('%Y-%m-%d'),
-    interval='6h',
+    interval='1h',
     progress=True
 )
 
