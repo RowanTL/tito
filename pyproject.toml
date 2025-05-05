@@ -15,6 +15,7 @@ dependencies = [
 dev = [
     "ruff>=0.11.8",
     "black>=25.1.0",
-    # "ipython==8.36.0"
+    "ipython==8.36.0"
     # "spyder>=6.0.5",
+    "spyder-kernels>=3.0.3"
 ]
