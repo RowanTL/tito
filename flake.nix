@@ -124,6 +124,11 @@
               vscodeExtensions = with pkgs.vscode-extensions; [
                 bbenoist.nix
                 ms-python.python
+                ms-toolsai.datawrangler
+                ms-toolsai.jupyter
+                ms-python.vscode-pylance
+                ms-python.debugpy
+                mechatroner.rainbow-csv
               ]; 
             })
           ];
