@@ -57,10 +57,13 @@
       # This is an additional overlay implementing build fixups.
       # See:
       # - https://pyproject-nix.github.io/uv2nix/FAQ.html
-      pyprojectOverrides = _final: _prev: {
-        # Implement build fixups here.
-        # Note that uv2nix is _not_ using Nixpkgs buildPythonPackage.
-        # It's using https://pyproject-nix.github.io/pyproject.nix/build.html
+      pyprojectOverrides = final: prev: {
+        peewee = prev.peewee.overrideAttrs(old: {
+          buildInputs = (old.buildInputs or []) ++ final.resolveBuildSystem ( {setuptools = [];});
+        });
+        ta = prev.ta.overrideAttrs(old: {
+          buildInputs = (old.buildInputs or []) ++ final.resolveBuildSystem ( {setuptools = [];});
+        });
       };
 
       # This example is only using x86_64-linux
