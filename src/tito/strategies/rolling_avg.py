@@ -8,10 +8,13 @@ from datetime import datetime, timedelta
 ticker = 'BTC-USD'
 # Calculate date range for the last 2 years
 end_date = datetime.now()
-start_date = end_date - timedelta(days=2*365)
+#start_date = end_date - timedelta(days=2*365)
+
+# going for hour data here
+start_date = end_date - timedelta(days=60)
 
 # SMA periods
-short_window = 20  # Short-term SMA (e.g., 20 days)
+short_window = 10  # Short-term SMA (e.g., 20 days)
 long_window = 40   # Long-term SMA (e.g., 50 days)
 
 # --- Risk and Cost Parameters ---
@@ -38,7 +41,8 @@ print(f"------------------")
 # --- Step 1: Fetch Data ---
 print(f"\nFetching {ticker} data...")
 try:
-    data = yf.download(ticker, start=start_date, end=end_date, interval='1d')
+    #data = yf.download(ticker, start=start_date, end=end_date, interval='1d')
+    data = yf.download(ticker, period="6mo", interval='1h')
     if data.empty:
         print(f"No data downloaded for {ticker}. Check the ticker symbol or date range.")
         exit()
