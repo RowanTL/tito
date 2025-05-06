@@ -9,7 +9,6 @@ dependencies = [
     "polars>=1.29.0",
     "matplotlib>=3.10.1",
     "yfinance>=0.2.58",
-    "spyder"
 ]
 
 # [project.optional-dependencies]
