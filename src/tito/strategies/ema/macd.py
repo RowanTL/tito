@@ -16,15 +16,20 @@ from pathlib import Path
 # Load data
 timespan: str = "6mo"
 df_path: Path = Path(f"../../data/btc_data/hourly_6_{timespan}.csv")
+#df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
 data = pl.read_csv(df_path)
 col_name: str = "Close"
-short_span = 12
-long_span = 40
-signal_span = 9
+short_span = 11
+long_span = 46
+signal_span = 12
 transaction_cost = 0.0005
 risk_free_rate = 0.0421
-# trading_days = 365 # 365 days for daily strategies
+#trading_days = 365 # 365 days for daily strategies
 trading_days = 1461 # 1461 for 6 hour increments
+#trading_days = 730.5 # 730.5 for 12 hour increments
+
+# best sharpe so far for hourly: 
+# short_span = 15, long_span = 40, signal_span = 9, file is hourly_6_6mo
 
 # %%
 
@@ -124,7 +129,7 @@ plt.bar(plot_df["Datetime"], neg_hist, color="red", alpha=0.5, width=1, label="N
 # Add horizontal line at y=0
 plt.axhline(y=0, color='black', linestyle='-', alpha=0.3)
 
-plt.title("MACD with Histogram - Bitcoin (2y)")
+plt.title(f"MACD with Histogram - Bitcoin ({timespan})")
 plt.xlabel("Date")
 plt.ylabel("MACD")
 plt.legend()
