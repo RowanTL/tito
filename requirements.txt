@@ -1,0 +1,13 @@
+pandas
+polars
+matplotlib
+jupyterlab
+statsmodels
+fastexcel
+pyzmq
+scikit-learn
+seaborn
+spyder
+yfinance
+alpaca-py
+xlrd
