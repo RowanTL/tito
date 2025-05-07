@@ -185,35 +185,88 @@ def main():
     
     # Define parameter grid
     param_grid = {
-        'short_span': list(range(5, 30, 1)),     # 5, 10, 15, 20, 25
-        'long_span': list(range(20, 60, 1)),    # 20, 30, 40, 50
-        'signal_span': list(range(3, 18, 1))     # 3, 6, 9, 12, 15
+        'short_span': list(range(3, 50, 1)),     # 5, 10, 15, 20, 25
+        'long_span': list(range(10, 101, 1)),    # 20, 30, 40, 50
+        'signal_span': list(range(2, 30, 1))     # 3, 6, 9, 12, 15
     }
     
     # Create the model
-    macd_model = MACDStrategy(
+    base_macd_model = MACDStrategy(
         transaction_cost=transaction_cost,
         risk_free_rate=risk_free_rate,
         trading_days=trading_days
     )
     
-    # Time series split for validation
-    tscv = TimeSeriesSplit(n_splits=3)
+    # Manual grid search implementation without validation
+    best_params = {}
+    best_sharpe = -np.inf
+    results = []
     
-    # Create GridSearchCV object
-    grid_search = GridSearchCV(
-        estimator=macd_model,
-        param_grid=param_grid,
-        cv=tscv,
-        scoring='neg_mean_squared_error',  # We'll override this with our custom score
-        refit=True,
-        verbose=2,
-        n_jobs=1  # Use all available cores
+    # Print header
+    print(f"{'short_span':<10} {'long_span':<10} {'signal_span':<10} {'Sharpe Ratio':<15}")
+    print("-" * 50)
+    
+    # Iterate through all parameter combinations
+    for short_span in param_grid['short_span']:
+        for long_span in param_grid['long_span']:
+            # Skip invalid combinations where short_span >= long_span
+            if short_span >= long_span:
+                continue
+                
+            for signal_span in param_grid['signal_span']:
+                # Create a new model with current parameters
+                model = MACDStrategy(
+                    short_span=short_span,
+                    long_span=long_span,
+                    signal_span=signal_span,
+                    transaction_cost=transaction_cost,
+                    risk_free_rate=risk_free_rate,
+                    trading_days=trading_days
+                )
+                
+                # Fit model on entire dataset
+                model.fit(data)
+                sharpe = model.sharpe_ratio_
+                
+                # Store results
+                result = {
+                    'param_short_span': short_span,
+                    'param_long_span': long_span,
+                    'param_signal_span': signal_span,
+                    'mean_test_score': sharpe  # Using this field for compatibility with plotting functions
+                }
+                results.append(result)
+                
+                # Print current result
+                print(f"{short_span:<10} {long_span:<10} {signal_span:<10} {sharpe:<15.4f}")
+                
+                # Update best params if current is better
+                if sharpe > best_sharpe:
+                    best_sharpe = sharpe
+                    best_params = {
+                        'short_span': short_span,
+                        'long_span': long_span,
+                        'signal_span': signal_span
+                    }
+                    best_model = model
+    
+    # Convert results to DataFrame for easier analysis
+    results_df = pd.DataFrame(results)
+    
+    # Create a GridSearchCV-like results structure for compatibility with plotting functions
+    class GridSearchResults:
+        def __init__(self, cv_results, best_params, best_score, best_estimator):
+            self.cv_results_ = cv_results
+            self.best_params_ = best_params
+            self.best_score_ = best_score
+            self.best_estimator_ = best_estimator
+    
+    grid_search = GridSearchResults(
+        cv_results=results,
+        best_params=best_params,
+        best_score=best_sharpe,
+        best_estimator=best_model
     )
-    
-    # Fit grid search (overriding the scoring with our custom Sharpe ratio)
-    grid_search.scoring = lambda estimator, X, y=None: estimator.score(X)
-    grid_search.fit(data, None)
     
     # Print best parameters and results
     print("Best parameters:", grid_search.best_params_)
