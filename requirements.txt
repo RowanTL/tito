@@ -11,3 +11,4 @@ spyder
 yfinance
 alpaca-py
 xlrd
+ta
