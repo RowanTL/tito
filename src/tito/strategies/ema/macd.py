@@ -15,7 +15,7 @@ from pathlib import Path
 
 # Load data
 timespan: str = "6mo"
-df_path: Path = Path(f"../../data/btc_data/hourly_6_{timespan}.csv")
+df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
 #df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
 data = pl.read_csv(df_path)
 col_name: str = "Close"
