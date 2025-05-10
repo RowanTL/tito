@@ -14,7 +14,7 @@ from pathlib import Path
 # %%
 
 # Load data
-timespan: str = "6mo"
+timespan: str = "2mo"
 df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
 #df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
 data = pl.read_csv(df_path)
@@ -65,6 +65,11 @@ print(f"Sharpe ratio: {sharpe_set}")
 
 # Convert to pandas for plotting
 plot_df = data.to_pandas()
+
+# %%
+
+plt.plot(pnl_t.cum_sum())
+plt.show()
 
 # %%
 

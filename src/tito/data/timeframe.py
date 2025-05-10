@@ -52,7 +52,7 @@ def prune_time(timeframe: int, timestep: str = "hourly", df: Optional[pl.DataFra
     return filtered_df
 
 if __name__ == "__main__":
-    timestep = 12
-    timespan: str = "6mo"
+    timestep = 6
+    timespan: str = "2mo"
     df = prune_time(timestep, "hourly", csv_path=f"btc_data/hourly_{timespan}.csv")
     df.write_csv(f"btc_data/hourly_{timestep}_{timespan}.csv")
