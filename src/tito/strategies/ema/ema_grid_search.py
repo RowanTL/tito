@@ -175,7 +175,7 @@ def plot_grid_search_results(grid_search, param_name, score_name='mean_test_scor
 def main():
     # Load data
     timespan: str = "6mo"
-    df_path: Path = Path(f"../../data/btc_data/hourly_6_{timespan}.csv")
+    df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
     data = pl.read_csv(df_path)
     
     # Configuration

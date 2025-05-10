@@ -9,7 +9,7 @@ from pathlib import Path
 # %%
 
 # Load data
-timespan: str = "6mo"
+timespan: str = "2mo"
 df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
 #df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
 data = pl.read_csv(df_path)
@@ -78,6 +78,28 @@ sharpe_set = sqrt(trading_days) * pnl_t[1:].mean() / pnl_t[1:].std()
 
 print(f"Total pnl: {total_pnl}")
 print(f"Sharpe ratio: {sharpe_set}")
+
+# %%
+
+fig, ax = plt.subplots()
+ax.plot(pnl_t.cum_sum())
+ax.set_title("MACD and BB profit and loss cummulative sum")
+ax.set_ylabel("cumulative profit")
+ax.set_xlabel("Hour (Increments of 6)")
+plt.show()
+
+# %%
+
+# I want to try to graph this plot on top of the original col_name column
+# when the position signal is 1, show a green bar, when the positition signal
+# is 0, show a red bar all the way up the graph.
+
+fig, ax = plt.subplots()
+ax.plot(data[col_name])
+ax.set_title(f"BTC closing price for the last {timespan}")
+ax.set_ylabel("Price in USD")
+ax.set_xlabel("Hour (Increments of 6)")
+plt.show()
 
 # %%
 
