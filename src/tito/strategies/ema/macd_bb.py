@@ -12,7 +12,7 @@ from pathlib import Path
 timespan: str = "2mo"
 df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
 #df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
-data = pl.read_csv(df_path)
+data = pl.read_csv(df_path, try_parse_dates=True).with_row_index()
 col_name: str = "Close"
 short_span = 6
 long_span = 41
@@ -90,169 +90,35 @@ plt.show()
 
 # %%
 
-# I want to try to graph this plot on top of the original col_name column
-# when the position signal is 1, show a green bar, when the positition signal
-# is 0, show a red bar all the way up the graph.
-
 fig, ax = plt.subplots()
-ax.plot(data[col_name])
+ax.plot(data["MACD_line"], color="blue")
+ax.plot(data["signal_line"], color="red")
+ax.set_title("MACD_line and signal_line comparision")
+ax.legend(["MACD_line", "signal_line"])
+plt.show()
+
+# %%
+
+# Sort data by index to ensure proper line connection
+sorted_data = data.sort("index")
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+# Plot all data as a single connected line
+ax.plot(sorted_data["index"], sorted_data[col_name], color="gray", linewidth=1.5, alpha=0.5)
+
+# Plot buy points (positions == 1) in green
+buy_data = data.filter(positions == 1)
+ax.scatter(buy_data["index"], buy_data[col_name], color="green", s=30, label="Buy Signal")
+
+# Plot sell points (positions == 0) in red
+sell_data = data.filter(positions == 0)
+ax.scatter(sell_data["index"], sell_data[col_name], color="red", s=30, label="Sell Signal")
+
 ax.set_title(f"BTC closing price for the last {timespan}")
 ax.set_ylabel("Price in USD")
 ax.set_xlabel("Hour (Increments of 6)")
-plt.show()
-
-# %%
-
-# Convert to pandas for plotting
-plot_df = data.to_pandas()
-
-# %%
-
-# Create plot with 3 subplots - price with Bollinger Bands on top, 
-# positions in middle, MACD with histogram at bottom
-plt.figure(figsize=(14, 14))
-gs = gridspec.GridSpec(3, 1, height_ratios=[3, 1, 2])
-
-# Price chart with Bollinger Bands
-ax1 = plt.subplot(gs[0])
-ax1.plot(plot_df["Datetime"], plot_df[col_name], label="Bitcoin Price", color="black")
-ax1.plot(plot_df["Datetime"], plot_df["SMA"], label=f"SMA ({window_size})", color="blue")
-ax1.plot(plot_df["Datetime"], plot_df["Upper_Band"], label="Upper Band (2σ)", color="green", linestyle="--")
-ax1.plot(plot_df["Datetime"], plot_df["Lower_Band"], label="Lower Band (2σ)", color="green", linestyle="--")
-
-# Fill the area between the bands
-ax1.fill_between(plot_df["Datetime"], plot_df["Upper_Band"], plot_df["Lower_Band"], color="green", alpha=0.1)
-
-# Add buy and sell signals
-buy_signals = plot_df[plot_df["position_change"] == 1]
-sell_signals = plot_df[plot_df["position_change"] == -1]
-
-ax1.scatter(buy_signals["Datetime"], buy_signals[col_name], marker="^", color="green", s=100, label="Buy Signal")
-ax1.scatter(sell_signals["Datetime"], sell_signals[col_name], marker="v", color="red", s=100, label="Sell Signal")
-
-ax1.set_title(f"Bitcoin Price with Bollinger Bands ({timespan})")
-ax1.set_ylabel("Price (USD)")
-ax1.grid(True)
-ax1.legend(loc="upper left")
-
-# Position chart
-ax2 = plt.subplot(gs[1], sharex=ax1)
-ax2.plot(plot_df["Datetime"], plot_df["positions"], label="Position (1=Long, 0=Flat)", color="purple", drawstyle="steps-post")
-ax2.set_ylabel("Position")
-ax2.set_ylim(-0.1, 1.1)
-ax2.grid(True)
-ax2.legend()
-
-# MACD with histogram
-ax3 = plt.subplot(gs[2], sharex=ax1)
-ax3.plot(plot_df["Datetime"], plot_df["MACD_line"], label="MACD Line", color="blue")
-ax3.plot(plot_df["Datetime"], plot_df["signal_line"], label="Signal Line", color="red")
-
-# Add histogram bars
-histogram = plot_df["histogram"]
-pos_hist = histogram.copy()
-neg_hist = histogram.copy()
-pos_hist[pos_hist <= 0] = 0
-neg_hist[neg_hist > 0] = 0
-
-# Plot positive and negative histogram values with different colors
-ax3.bar(plot_df["Datetime"], pos_hist, color="green", alpha=0.5, width=1)
-ax3.bar(plot_df["Datetime"], neg_hist, color="red", alpha=0.5, width=1)
-
-# Add horizontal line at y=0
-ax3.axhline(y=0, color='black', linestyle='-', alpha=0.3)
-
-ax3.set_title("MACD with Histogram")
-ax3.set_xlabel("Date")
-ax3.set_ylabel("MACD")
-ax3.grid(True)
-ax3.legend()
-
-plt.tight_layout()
-plt.show()
-
-# %%
-
-# Create a combined plot with just price and MACD
-plt.figure(figsize=(14, 10))
-gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1])
-
-# Price chart with Bollinger Bands
-ax1 = plt.subplot(gs[0])
-ax1.plot(plot_df["Datetime"], plot_df[col_name], label="Bitcoin Price", color="black")
-ax1.plot(plot_df["Datetime"], plot_df["SMA"], label=f"SMA ({window_size})", color="blue")
-ax1.plot(plot_df["Datetime"], plot_df["Upper_Band"], label="Upper Band (2σ)", color="green", linestyle="--")
-ax1.plot(plot_df["Datetime"], plot_df["Lower_Band"], label="Lower Band (2σ)", color="green", linestyle="--")
-
-# Fill the area between the bands
-ax1.fill_between(plot_df["Datetime"], plot_df["Upper_Band"], plot_df["Lower_Band"], color="green", alpha=0.1)
-
-# Add buy and sell signals
-buy_signals = plot_df[plot_df["position_change"] == 1]
-sell_signals = plot_df[plot_df["position_change"] == -1]
-
-ax1.scatter(buy_signals["Datetime"], buy_signals[col_name], marker="^", color="green", s=100, label="Buy Signal")
-ax1.scatter(sell_signals["Datetime"], sell_signals[col_name], marker="v", color="red", s=100, label="Sell Signal")
-
-ax1.set_title(f"Bitcoin Price with Bollinger Bands and Trading Signals ({timespan})")
-ax1.set_ylabel("Price (USD)")
-ax1.grid(True)
-ax1.legend(loc="upper left")
-
-# MACD with histogram
-ax2 = plt.subplot(gs[1], sharex=ax1)
-ax2.plot(plot_df["Datetime"], plot_df["MACD_line"], label="MACD Line", color="blue")
-ax2.plot(plot_df["Datetime"], plot_df["signal_line"], label="Signal Line", color="red")
-
-# Add histogram bars
-ax2.bar(plot_df["Datetime"], pos_hist, color="green", alpha=0.5, width=1, label="Positive Histogram")
-ax2.bar(plot_df["Datetime"], neg_hist, color="red", alpha=0.5, width=1, label="Negative Histogram")
-
-# Add horizontal line at y=0
-ax2.axhline(y=0, color='black', linestyle='-', alpha=0.3)
-
-ax2.set_title("MACD with Histogram")
-ax2.set_xlabel("Date")
-ax2.set_ylabel("MACD")
-ax2.grid(True)
-ax2.legend()
-
-plt.tight_layout()
-plt.show()
-
-# %%
-
-# Strategy performance visualization - just the price chart with signals
-plt.figure(figsize=(14, 8))
-
-# Price chart with buy/sell signals and Bollinger Bands
-plt.plot(plot_df["Datetime"], plot_df[col_name], label="Bitcoin Price", color="black")
-plt.plot(plot_df["Datetime"], plot_df["SMA"], label=f"SMA ({window_size})", color="blue")
-plt.plot(plot_df["Datetime"], plot_df["Upper_Band"], label="Upper Band (2σ)", color="green", linestyle="--")
-plt.plot(plot_df["Datetime"], plot_df["Lower_Band"], label="Lower Band (2σ)", color="green", linestyle="--")
-
-# Fill the area between the bands
-plt.fill_between(plot_df["Datetime"], plot_df["Upper_Band"], plot_df["Lower_Band"], color="green", alpha=0.1)
-
-# Add buy and sell signals
-plt.scatter(buy_signals["Datetime"], buy_signals[col_name], marker="^", color="green", s=100, label="Buy Signal")
-plt.scatter(sell_signals["Datetime"], sell_signals[col_name], marker="v", color="red", s=100, label="Sell Signal")
-
-# Add strategy performance metrics as text
-performance_text = (
-    f"Total PnL: {total_pnl:.4f}\n"
-    f"Sharpe Ratio: {sharpe_set:.4f}\n"
-    f"Risk-Free Rate: {risk_free_rate:.4f}\n"
-    f"Transaction Cost: {transaction_cost:.4f}"
-)
-plt.text(0.02, 0.02, performance_text, transform=plt.gca().transAxes,
-        bbox=dict(facecolor='white', alpha=0.8), fontsize=10)
-
-plt.title(f"Bitcoin Price with Bollinger Bands and Trading Signals ({timespan})")
-plt.ylabel("Price (USD)")
-plt.xlabel("Date")
-plt.grid(True)
-plt.legend(loc="upper left")
-
+ax.legend()
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()
