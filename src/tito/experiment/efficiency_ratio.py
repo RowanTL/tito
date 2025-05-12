@@ -3,6 +3,8 @@
 # price series. High noise very random, low noise straight line.
 # Do non confuse noise with volatility.
 
+# Implementation from chapter 1 of Trading Systems and Methods 6th Edition by Perry J. Kaufman
+
 import polars as pl
 from pathlib import Path
 
@@ -14,6 +16,16 @@ df_path: Path = Path(f"src/tito/data/btc_data/hourly_6_{timespan}.csv")
 #df_path: Path = Path(f"../../data/btc_data/daily_{timespan}.csv")
 data = pl.read_csv(df_path)
 col_name: str = "Close"
+
+# %%
+
+def calculate_ER(price_series: pl.Series) -> float:
+    abs_net_price_change = abs(price_series.first() - price_series.last())
+    ind_change_positive = data.select(pl.col(col_name) - pl.col(col_name).shift(1)).to_series().abs()
+    sum_ind_abs_price_change = ind_change_positive.sum()
+    efficiency_ratio = abs_net_price_change / sum_ind_abs_price_change
+
+    return efficiency_ratio
 
 # %%
 
@@ -29,9 +41,22 @@ sum_ind_abs_price_change = abs_price_change.sum()
 efficiency_ratio = net_price_change / sum_ind_abs_price_change
 """
 
-abs_net_price_change = abs(data[col_name].first() - data[col_name].last())
+# This one is correct after viewing the math equation
+"""abs_net_price_change = abs(data[col_name].first() - data[col_name].last())
 ind_change_positive = data.select(pl.col(col_name) - pl.col(col_name).shift(1)).to_series().abs()
 sum_ind_abs_price_change = ind_change_positive.sum()
-efficiency_ratio = abs_net_price_change / sum_ind_abs_price_change
+efficiency_ratio = abs_net_price_change / sum_ind_abs_price_change"""
 
-print(efficiency_ratio)
+orig_efficiency_ratio: float = calculate_ER(data[col_name])
+
+print(orig_efficiency_ratio)
+
+# %%
+
+# Can arbitrarily change the net price move to distinguish between noise and volatility.
+# If sum of individual price changes stay the same, but net move larger, then noise is less.
+
+# Can I test this with fake data. How do I test this?
+
+#col_name_mod = pl.Series([data[col_name][0]])
+col_name_mod = pl.concat([pl.Series([data[col_name][0]]), data[col_name][1:] + 233])
